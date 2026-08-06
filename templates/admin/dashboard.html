@@ -1,0 +1,62 @@
+{% extends "admin/_base.html" %}
+{% block admin_title %}Eventos{% endblock %}
+
+{% block admin_content %}
+<div class="admin__header">
+  <div>
+    <h1 class="admin__title">Eventos e galerias</h1>
+    <p class="admin__subtitle">Cada evento gera um código único, exibido apenas uma vez na criação.</p>
+  </div>
+  <a href="{{ url_for('admin.evento_novo') }}" class="btn btn--gold">+ Novo evento</a>
+</div>
+
+{% if eventos %}
+<div class="admin-table-wrap">
+  <table class="admin-table">
+    <thead>
+      <tr>
+        <th>Cliente</th>
+        <th>Categoria</th>
+        <th>Data do evento</th>
+        <th>Status</th>
+        <th>Fotos</th>
+        <th>Último acesso</th>
+        <th>Criado em</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for ev in eventos %}
+      <tr>
+        <td class="admin-table__cliente">{{ ev.nome_cliente }}</td>
+        <td>{{ ev.categoria }}</td>
+        <td>{{ ev.data_evento.strftime('%d/%m/%Y') }}</td>
+        <td>
+          {% if ev.status_efetivo == 'ativo' %}
+            <span class="badge badge--ativo">Ativo</span>
+          {% elif ev.status_efetivo == 'expirado' %}
+            <span class="badge badge--expirado">Expirado</span>
+          {% else %}
+            <span class="badge badge--revogado">Revogado</span>
+          {% endif %}
+          {% if ev.expira_em %}<div class="admin-table__meta">expira {{ ev.expira_em.strftime('%d/%m/%Y') }}</div>{% endif %}
+        </td>
+        <td>{{ ev.total_fotos }}</td>
+        <td>{% if ev.ultimo_acesso %}{{ ev.ultimo_acesso.strftime('%d/%m/%Y %H:%M') }}{% else %}<span class="admin-table__meta">—</span>{% endif %}</td>
+        <td class="admin-table__meta">{{ ev.criado_em.strftime('%d/%m/%Y') }}</td>
+        <td class="admin-table__acoes">
+          <a class="btn btn--outline btn--sm" href="{{ url_for('admin.evento_detalhe', evento_id=ev.id) }}">Abrir</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="admin-card admin-card--empty">
+  <p class="admin-card__empty-title">Nenhum evento criado ainda.</p>
+  <p class="admin-card__desc">Crie o primeiro evento, envie as fotos e gere o código de acesso do cliente.</p>
+  <a href="{{ url_for('admin.evento_novo') }}" class="btn btn--gold">Criar evento</a>
+</div>
+{% endif %}
+{% endblock %}

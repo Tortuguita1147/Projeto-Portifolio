@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}{{ site.titulo_aba }}{% endblock %}</title>
+  <meta name="description" content="{{ site.descricao_meta }}">
+  <meta name="theme-color" content="#2B1330">
+
+  <!-- Preconnect acelera a primeira requisição às fontes -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="icon" href="data:,">
+</head>
+<body>
+
+  <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+
+  <header class="nav" id="nav">
+    <div class="nav__inner">
+      <a href="{% block brand_href %}#topo{% endblock %}" class="nav__brand">{{ site.nome }}</a>
+
+      <button class="nav__toggle" id="navToggle" aria-label="Abrir menu" aria-expanded="false" aria-controls="navMenu">
+        <span></span><span></span><span></span>
+      </button>
+
+      <nav class="nav__menu" id="navMenu">
+        {% block nav_links %}
+        <a href="#sobre">Sobre</a>
+        <a href="#especialidades">Especialidades</a>
+        <a href="#galeria">Galeria</a>
+        <a href="#processo">Como funciona</a>
+        <a href="#pacotes">Pacotes</a>
+        <a href="#faq">Dúvidas</a>
+        <a href="#contato" class="nav__cta">Contato</a>
+        {% endblock %}
+      </nav>
+    </div>
+  </header>
+
+  <main id="conteudo">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="footer" id="contato">
+    <div class="section__inner footer__inner">
+      <div class="footer__brand">
+        <p class="footer__signature">{{ site.nome }}</p>
+        <p class="footer__tagline">Fotografia que sente. Memórias que ficam.</p>
+      </div>
+
+      <p class="footer__lead">
+        Toda história merece ser guardada com carinho.<br>
+        Se você chegou até aqui, talvez seja hora de guardar a sua.
+      </p>
+
+      <div class="footer__actions">
+        <a class="btn btn--gold" href="https://wa.me/{{ site.whatsapp_numero }}" target="_blank" rel="noopener">
+          Solicitar orçamento no WhatsApp
+        </a>
+      </div>
+
+      <div class="footer__links">
+        <a href="https://wa.me/{{ site.whatsapp_numero }}" target="_blank" rel="noopener">
+          {{ site.whatsapp_exibicao }}
+        </a>
+        <a href="https://instagram.com/{{ site.instagram_usuario }}" target="_blank" rel="noopener">
+          @{{ site.instagram_usuario }}
+        </a>
+        <a href="mailto:{{ site.email }}">{{ site.email }}</a>
+      </div>
+
+      <p class="footer__copy">&copy; <span id="ano"></span> {{ site.nome }} Fotografia. Todos os direitos reservados.</p>
+    </div>
+  </footer>
+
+  <a class="whatsapp-float" href="https://wa.me/{{ site.whatsapp_numero }}" target="_blank" rel="noopener" aria-label="Falar no WhatsApp">
+    {% include "icons/_whatsapp.html" %}
+  </a>
+
+  <script src="{{ url_for('static', filename='js/main.js') }}" defer></script>
+</body>
+</html>

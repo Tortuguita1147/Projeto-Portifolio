@@ -1,0 +1,22 @@
+<!-- Modal / lightbox da galeria — reutilizado pela home (categorias
+     fixas) e pela página de galeria privada (/galeria/<codigo>). O JS em
+     main.js popula o grid conforme a origem dos dados (cards do bento ou
+     galeria do evento), sem duplicar este componente. -->
+<div class="gallery-modal" id="galleryModal" data-gallery-modal hidden>
+  <div class="gallery-modal__backdrop" data-gallery-close></div>
+  <div class="gallery-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="galleryModalTitle">
+    <button type="button" class="gallery-modal__close" data-gallery-close aria-label="Fechar galeria">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <line x1="4" y1="4" x2="20" y2="20"></line>
+        <line x1="20" y1="4" x2="4" y2="20"></line>
+      </svg>
+    </button>
+    <p class="gallery-modal__eyebrow">Mais fotos deste estilo</p>
+    <h3 class="gallery-modal__title" id="galleryModalTitle"></h3>
+    <div class="gallery-modal__grid" data-gallery-grid></div>
+    <div class="gallery-modal__video" data-gallery-video hidden>
+      <p>Confira nossos vídeos completos no canal do YouTube.</p>
+      <a href="#" target="_blank" rel="noopener" class="btn btn--gold" data-gallery-video-link>Assistir no YouTube</a>
+    </div>
+  </div>
+</div>

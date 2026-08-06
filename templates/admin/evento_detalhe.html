@@ -1,0 +1,138 @@
+{% extends "admin/_base.html" %}
+{% block admin_title %}{{ evento.nome_cliente }}{% endblock %}
+
+{% block admin_content %}
+<div class="admin__header">
+  <div>
+    <h1 class="admin__title">{{ evento.nome_cliente }}</h1>
+    <p class="admin__subtitle">
+      {{ evento.categoria }} &middot; {{ evento.data_evento.strftime('%d/%m/%Y') }}
+      &middot; <span class="badge {% if evento.status_efetivo == 'ativo' %}badge--ativo{% elif evento.status_efetivo == 'expirado' %}badge--expirado{% else %}badge--revogado{% endif %}">
+        {{ evento.status_efetivo|capitalize }}
+      </span>
+    </p>
+  </div>
+  <div class="admin__header-actions">
+    <a href="{{ url_for('admin.dashboard') }}" class="btn btn--outline">Voltar</a>
+  </div>
+</div>
+
+<div class="admin-grid admin-grid--2col">
+
+  <!-- Coluna 1: dados + ações -->
+  <div class="admin-col">
+    <div class="admin-card">
+      <h2 class="admin-card__title">Dados do evento</h2>
+      <form method="post" class="admin-form">
+        {{ form.csrf_token }}
+        <div class="admin-form__field">
+          <label for="{{ form.nome_cliente.id }}">{{ form.nome_cliente.label.text }}</label>
+          {{ form.nome_cliente(class="admin-form__input") }}
+        </div>
+        <div class="admin-form__row">
+          <div class="admin-form__field">
+            <label for="{{ form.categoria.id }}">{{ form.categoria.label.text }}</label>
+            {{ form.categoria(class="admin-form__input") }}
+          </div>
+          <div class="admin-form__field">
+            <label for="{{ form.data_evento.id }}">{{ form.data_evento.label.text }}</label>
+            {{ form.data_evento(class="admin-form__input") }}
+          </div>
+        </div>
+        <div class="admin-form__field">
+          <label for="{{ form.expira_em.id }}">{{ form.expira_em.label.text }}</label>
+          {{ form.expira_em(class="admin-form__input") }}
+          {% if evento.expira_em %}<small class="admin-form__hint">O acesso encerra automaticamente nesta data.</small>{% endif %}
+        </div>
+        <div class="admin-form__field">
+          <label for="{{ form.observacoes.id }}">{{ form.observacoes.label.text }}</label>
+          {{ form.observacoes(class="admin-form__input admin-form__textarea", rows="3") }}
+        </div>
+        <button type="submit" class="btn btn--outline">Salvar alterações</button>
+      </form>
+    </div>
+
+    <div class="admin-card">
+      <h2 class="admin-card__title">Código de acesso</h2>
+      <p class="admin-card__desc">
+        O código é exibido <strong>uma única vez</strong> no momento em que é
+        gerado e nunca mais pode ser recuperado (nem aqui). O link do cliente
+        é <code>/galeria/&lt;código&gt;</code> e o cliente também pode digitar o
+        código no campo "Já é cliente?" da página inicial.
+      </p>
+      <div class="admin-actions">
+        <form method="post" action="{{ url_for('admin.evento_codigo_regenerar', evento_id=evento.id) }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit" class="btn btn--gold btn--sm">Gerar novo código</button>
+        </form>
+        <form method="post" action="{{ url_for('admin.evento_status', evento_id=evento.id) }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          {% if evento.status == 'ativo' %}
+          <button type="submit" class="btn btn--danger btn--sm">Revogar acesso</button>
+          {% else %}
+          <button type="submit" class="btn btn--outline btn--sm">Reativar acesso</button>
+          {% endif %}
+        </form>
+        <form method="post" action="{{ url_for('admin.evento_excluir', evento_id=evento.id) }}"
+              onsubmit="return confirm('Excluir este evento, todas as fotos e registros de acesso? Esta ação não pode ser desfeita.');">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit" class="btn btn--ghost-danger btn--sm">Excluir evento</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="admin-card">
+      <h2 class="admin-card__title">Acessos recentes</h2>
+      {% if evento.acessos %}
+      <ul class="admin-list">
+        {% for a in evento.acessos[:10] %}
+        <li class="admin-list__item">
+          <span>{{ a.acessado_em.strftime('%d/%m/%Y %H:%M') }}</span>
+          <code>{{ a.ip or '—' }}</code>
+        </li>
+        {% endfor %}
+      </ul>
+      {% else %}
+      <p class="admin-card__desc">Nenhum acesso registrado ainda.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Coluna 2: fotos + upload -->
+  <div class="admin-col">
+    <div class="admin-card">
+      <h2 class="admin-card__title">Fotos ({{ evento.total_fotos }})</h2>
+
+      <form method="post" action="{{ url_for('admin.evento_fotos', evento_id=evento.id) }}"
+            enctype="multipart/form-data" class="admin-upload">
+        {{ upload_form.csrf_token }}
+        <label class="admin-upload__drop">
+          <span>{{ upload_form.fotos.label.text }}</span>
+          {{ upload_form.fotos(class="admin-upload__input", multiple=True, accept="image/jpeg,image/png,image/webp") }}
+        </label>
+        {{ upload_form.enviar(class="btn btn--gold btn--sm") }}
+      </form>
+
+      {% if evento.fotos %}
+      <div class="admin-photos">
+        {% for foto in evento.fotos %}
+        <figure class="admin-photo">
+          <img src="{{ url_for('static', filename='uploads/' + foto.caminho_thumbnail) }}" alt="Foto {{ loop.index }}" loading="lazy">
+          <figcaption>
+            <form method="post" action="{{ url_for('admin.foto_excluir', evento_id=evento.id, foto_id=foto.id) }}"
+                  onsubmit="return confirm('Remover esta foto?');">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button type="submit" class="admin-photo__del" aria-label="Remover foto">✕</button>
+            </form>
+          </figcaption>
+        </figure>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p class="admin-card__desc">Nenhuma foto ainda. Envie as fotos do evento acima.</p>
+      {% endif %}
+    </div>
+  </div>
+
+</div>
+{% endblock %}

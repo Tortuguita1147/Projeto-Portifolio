@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">  <!-- painel fora do Google -->
+  <title>{% block admin_title %}Painel{% endblock %} · Rayane Yasmin</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="icon" href="data:,">
+</head>
+<body class="admin">
+
+  <header class="admin__topbar">
+    <div class="admin__topbar-inner">
+      <span class="admin__brand">Rayane Yasmin <em>· painel</em></span>
+      <nav class="admin__nav">
+        <a href="{{ url_for('admin.dashboard') }}">Eventos</a>
+        <a href="{{ url_for('admin.evento_novo') }}" class="admin__nav-cta">+ Novo evento</a>
+        <a href="{{ url_for('home') }}" target="_blank" rel="noopener">Ver site</a>
+        <form method="post" action="{{ url_for('admin.logout') }}" class="admin__logout">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit" class="admin__logout-btn">Sair</button>
+        </form>
+      </nav>
+    </div>
+  </header>
+
+  <main class="admin__main">
+    {% with msgs = get_flashed_messages(with_categories=true) %}
+      {% if msgs %}
+        <div class="flash-stack flash-stack--admin">
+          {% for categoria, msg in msgs %}
+          <p class="flash flash--{{ categoria }}" role="status">{{ msg }}</p>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+    {% block admin_content %}{% endblock %}
+  </main>
+
+</body>
+</html>

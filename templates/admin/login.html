@@ -1,0 +1,21 @@
+{% extends "admin/_base.html" %}
+{% block admin_title %}Login{% endblock %}
+
+{% block admin_content %}
+<div class="admin__login">
+  <div class="admin-card admin-card--login">
+    <p class="eyebrow">Área restrita</p>
+    <h1 class="admin-card__title">Entrar no painel</h1>
+    <p class="admin-card__desc">Somente a fotógrafa tem acesso.</p>
+
+    <form method="post" class="admin-form">
+      {{ form.csrf_token }}
+      <div class="admin-form__field">
+        <label for="{{ form.senha.id }}">{{ form.senha.label.text }}</label>
+        {{ form.senha(class="admin-form__input", autofocus=True) }}
+      </div>
+      {{ form.entrar(class="btn btn--gold admin-form__submit") }}
+    </form>
+  </div>
+</div>
+{% endblock %}

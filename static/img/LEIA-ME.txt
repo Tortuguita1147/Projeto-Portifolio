@@ -1,0 +1,20 @@
+Coloque aqui as fotos reais do portfólio.
+
+Onde cada imagem entra no site (ver templates/index.html):
+- hero__photo            → 1 foto de impacto (capa)
+- sobre__photo           → 1 retrato da Rayane
+- gallery-block__grid    → 4 a 10 fotos por categoria (Ensaios Femininos,
+                            Casais, Casamentos, Famílias)
+
+Dicas de performance antes de subir as fotos:
+1. Exporte em formato WebP ou JPEG otimizado (evite PNG para fotos).
+2. Redimensione para no máximo ~1800px no lado maior — não é necessário
+   subir arquivos de câmera em resolução total.
+3. Comprima (ferramentas como squoosh.app, tinypng.com ou o comando
+   `cwebp`) — o objetivo é manter cada foto abaixo de 300-400 KB.
+4. Depois de adicionar os arquivos, troque os blocos
+   `<div class="placeholder-photo">...</div>` nos templates por:
+   <img src="{{ url_for('static', filename='images/Foto_teste.jpg') }}"
+        alt="Descrição da foto" loading="lazy" width="800" height="auto">
+   O atributo loading="lazy" evita carregar fotos fora da tela logo de
+   cara, e width/height evitam que a página "pule" enquanto carrega.

@@ -1,0 +1,53 @@
+{% extends "admin/_base.html" %}
+{% block admin_title %}{{ 'Novo evento' if not evento else 'Editar evento' }}{% endblock %}
+
+{% block admin_content %}
+<div class="admin__header">
+  <div>
+    <h1 class="admin__title">{{ 'Novo evento' if not evento else 'Editar evento' }}</h1>
+    <p class="admin__subtitle">
+      {% if not evento %}
+      Ao salvar, um código de acesso será gerado automaticamente e exibido uma única vez.
+      {% else %}
+      Edite os dados do evento. O código de acesso não muda com esta edição.
+      {% endif %}
+    </p>
+  </div>
+  <a href="{{ url_for('admin.dashboard') }}" class="btn btn--outline">Voltar</a>
+</div>
+
+<div class="admin-card">
+  <form method="post" class="admin-form admin-form--grid">
+    {{ form.csrf_token }}
+
+    <div class="admin-form__field">
+      <label for="{{ form.nome_cliente.id }}">{{ form.nome_cliente.label.text }}</label>
+      {{ form.nome_cliente(class="admin-form__input", placeholder="Ex.: Ana & João") }}
+    </div>
+
+    <div class="admin-form__field">
+      <label for="{{ form.categoria.id }}">{{ form.categoria.label.text }}</label>
+      {{ form.categoria(class="admin-form__input") }}
+    </div>
+
+    <div class="admin-form__field">
+      <label for="{{ form.data_evento.id }}">{{ form.data_evento.label.text }}</label>
+      {{ form.data_evento(class="admin-form__input") }}
+    </div>
+
+    <div class="admin-form__field">
+      <label for="{{ form.expira_em.id }}">{{ form.expira_em.label.text }}</label>
+      {{ form.expira_em(class="admin-form__input") }}
+    </div>
+
+    <div class="admin-form__field admin-form__field--full">
+      <label for="{{ form.observacoes.id }}">{{ form.observacoes.label.text }}</label>
+      {{ form.observacoes(class="admin-form__input admin-form__textarea", rows="4", placeholder="Anotações internas — nunca aparecem para o cliente.") }}
+    </div>
+
+    <div class="admin-form__actions admin-form__field--full">
+      {{ form.salvar(class="btn btn--gold") }}
+    </div>
+  </form>
+</div>
+{% endblock %}

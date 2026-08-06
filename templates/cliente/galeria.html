@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}{{ evento.categoria }} — Galeria privada | {{ site.nome }}{% endblock %}
+
+{% block brand_href %}{{ url_for('home') }}{% endblock %}
+{% block nav_links %}
+  <a href="{{ url_for('home') }}">Início</a>
+{% endblock %}
+
+{% block content %}
+<section class="section section--dark privada" id="galeria-privada">
+  <div class="section__inner">
+    <p class="eyebrow eyebrow--on-dark">Galeria privada</p>
+    <h2 class="section__title section__title--on-dark privada__titulo">
+      {{ evento.categoria }}
+    </h2>
+    <p class="section__lead section__lead--on-dark privada__subtitulo">
+      Evento de {{ evento.nome_cliente }} &middot; {{ evento.data_evento.strftime('%d/%m/%Y') }}
+    </p>
+
+    {% if fotos %}
+    <div class="privada-grid" data-privada-titulo="{{ evento.categoria }}">
+      {% for foto in fotos %}
+      <button
+        type="button"
+        class="privada-card"
+        data-privada-foto
+        aria-haspopup="dialog"
+      >
+        <span class="privada-card__cover" style="--cover:url('{{ foto.url }}');"></span>
+      </button>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p class="section__lead section__lead--on-dark privada__vazio">
+      As fotos deste evento estarão disponíveis em breve.
+    </p>
+    {% endif %}
+
+    <p class="privada__rodape">
+      Fotos com exclusividade para {{ evento.nome_cliente }} &middot;
+      &copy; {{ site.nome }} Fotografia
+    </p>
+  </div>
+</section>
+
+<!-- Fotos do evento serializadas para o JS montar o lightbox (mesmo
+     componente da home). Nunca expõe caminho do arquivo original. -->
+<script type="application/json" id="galeria-privada-dados">{{ fotos | tojson }}</script>
+
+{% include "_modal_galeria.html" %}
+{% endblock %}

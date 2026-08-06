@@ -1,0 +1,281 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- Mensagens do servidor (ex.: código de acesso inválido) -->
+{% with msgs = get_flashed_messages(with_categories=true) %}
+  {% if msgs %}
+    <div class="flash-stack">
+      {% for categoria, msg in msgs %}
+      <p class="flash flash--{{ categoria }}" role="status">{{ msg }}</p>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
+<!-- ========================= HERO ========================= -->
+<section class="hero" id="topo">
+  <div class="hero__aperture" aria-hidden="true">{% include "icons/_aperture.html" %}</div>
+
+  <div class="hero__photo">
+    <!-- [Inserir foto aqui]: imagem-assinatura do portfólio (retrato ou making-of) -->
+    <img src="{{ url_for('static', filename='images/Foto_teste.jpg') }}"
+        alt="Descrição da foto" loading="lazy" width="800" height="auto">
+  </div>
+
+  <div class="hero__content">
+    <p class="eyebrow eyebrow--on-dark">Fotografia autoral</p>
+    <h1 class="hero__title">{{ hero.titulo }}</h1>
+    <p class="hero__subtitle">{{ hero.subtitulo }}</p>
+    <div class="hero__actions">
+      <a href="#galeria" class="btn btn--gold">{{ hero.cta_primario }}</a>
+      <a href="#contato" class="btn btn--ghost-light">{{ hero.cta_secundario }}</a>
+    </div>
+  </div>
+</section>
+
+<div class="filmstrip filmstrip--on-purple" aria-hidden="true"></div>
+
+<!-- ============ ACESSO DO CLIENTE (galeria privada) ============ -->
+<section class="section section--cream acesso-cliente" id="acesso-cliente">
+  <div class="section__inner section__inner--narrow">
+    <p class="eyebrow">Galeria privada</p>
+    <h2 class="section__title section__title--acesso">Já é cliente? Acesse sua galeria</h2>
+    <p class="section__lead">Recebeu um código de acesso? Digite aqui para ver as fotos do seu evento.</p>
+
+    <form class="acesso-cliente__form" method="post" action="{{ url_for('cliente.acesso') }}">
+      {{ form_acesso.csrf_token }}
+      <label class="sr-only" for="codigo-acesso">Código de acesso</label>
+      <input type="text" id="codigo-acesso" name="codigo" class="acesso-cliente__input"
+             placeholder="Cole ou digite seu código" maxlength="60" autocomplete="off" required>
+      <button type="submit" class="btn btn--gold acesso-cliente__btn">Acessar galeria</button>
+    </form>
+
+    {% if erro_acesso %}
+    <p class="acesso-cliente__erro" role="alert">{{ erro_acesso }}</p>
+    {% endif %}
+    <p class="acesso-cliente__dica">O código é individual e intransferível — ele é enviado pela fotógrafa para cada cliente.</p>
+  </div>
+</section>
+
+<!-- ========================= SOBRE ========================= -->
+<section class="section section--cream" id="sobre">
+  <div class="section__inner sobre">
+    <div class="sobre__photo">
+      <!-- [Inserir foto aqui]: retrato natural da Rayane, ambiente de trabalho -->
+      <img src="{{ url_for('static', filename='images/Foto_teste.jpg') }}"
+        alt="Descrição da foto" loading="lazy" width="800" height="auto">
+    </div>
+
+    <div class="sobre__text">
+      <p class="eyebrow">Sobre a Rayane</p>
+      <h2 class="section__title">Fotografar é o meu jeito de guardar<br>o que a vida tem de mais bonito</h2>
+
+      {% for paragrafo in sobre.texto %}
+      <p class="sobre__paragraph">{{ paragrafo }}</p>
+      {% endfor %}
+
+      <div class="quote-card">
+        <span class="quote-card__mark" aria-hidden="true">&ldquo;</span>
+        <p class="quote-card__text">{{ sobre.filosofia }}</p>
+        <p class="quote-card__label">Filosofia de trabalho</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== ESPECIALIDADES ===================== -->
+<section class="section section--green" id="especialidades">
+  <div class="section__inner">
+    <p class="eyebrow eyebrow--on-dark">O que eu fotografo</p>
+    <h2 class="section__title section__title--on-dark">Especialidades</h2>
+
+    <div class="grid grid--3">
+      {% for item in especialidades %}
+      <article class="card card--on-green">
+        <div class="card__icon">{% include "icons/_aperture.html" %}</div>
+        <h3 class="card__title">{{ item.titulo }}</h3>
+        <p class="card__text">{{ item.texto }}</p>
+      </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- ========================= GALERIA ========================= -->
+<!-- Bento de 5 cards: 1 foto grande no meio (estilo principal) + 2
+     menores na direita + 1 foto + 1 vídeo do lado esquerdo. Ao clicar
+     em qualquer card, abre um modal com todas as referências do
+     mesmo estilo (ou link do YouTube, no caso do vídeo). -->
+<section class="section section--dark" id="galeria">
+  <div class="section__inner">
+    <p class="eyebrow eyebrow--on-dark">Portfólio</p>
+    <h2 class="section__title section__title--on-dark">Galeria</h2>
+    <p class="section__lead section__lead--on-dark">Quatro estilos cuidadosamente construídos. Clique em qualquer foto para abrir outras referências do mesmo ensaio.</p>
+
+    <div class="gallery-bento">
+      {% for cat in galeria %}
+        {% if cat.tipo == 'video' %}
+        <button
+          type="button"
+          class="gallery-card gallery-card--{{ cat.id }} gallery-card--video"
+          data-gallery-card
+          data-cat-id="{{ cat.id }}"
+          data-cat-title="{{ cat.categoria }}"
+          data-type="video"
+          data-video-url="{{ cat.video_url }}"
+          aria-haspopup="dialog"
+        >
+          <span class="gallery-card__cover" style="--cover:url('{{ url_for('static', filename=cat.capa) }}');">
+            <span class="gallery-card__play" aria-hidden="true">
+              <svg viewBox="0 0 68 48" width="46" height="46">
+                <path d="M66.5 7.5a8.5 8.5 0 0 0-6-6C55 0 34 0 34 0S13 0 8.5 1.5a8.5 8.5 0 0 0-6 6A88.6 88.6 0 0 0 1 24a88.6 88.6 0 0 0 1.5 16.5 8.5 8.5 0 0 0 6 6C13 48 34 48 34 48s21 0 25.5-1.5a8.5 8.5 0 0 0 6-6A88.6 88.6 0 0 0 67 24a88.6 88.6 0 0 0-1.5-16.5z" fill="#FF0000"/>
+                <path d="M27 34.5V13.5L45 24z" fill="#fff"/>
+              </svg>
+            </span>
+            <span class="gallery-card__caption">{{ cat.categoria }}</span>
+          </span>
+        </button>
+        {% else %}
+        <button
+          type="button"
+          class="gallery-card gallery-card--{{ cat.id }}{% if cat.principal %} gallery-card--principal{% endif %}"
+          data-gallery-card
+          data-cat-id="{{ cat.id }}"
+          data-cat-title="{{ cat.categoria }}"
+          data-type="fotos"
+          data-fotos='{{ cat.fotos | tojson }}'
+          aria-haspopup="dialog"
+        >
+          <span class="gallery-card__cover" style="--cover:url('{{ url_for('static', filename=cat.capa) }}');">
+            {% if cat.principal %}
+            <span class="gallery-card__badge">Estilo principal</span>
+            {% endif %}
+            <span class="gallery-card__caption">{{ cat.categoria }}</span>
+          </span>
+        </button>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- ===================== MODAL / LIGHTBOX DA GALERIA ===================== -->
+<!-- Componente compartilhado com a galeria privada (ver _modal_galeria.html). -->
+{% include "_modal_galeria.html" %}
+
+<!-- ======================= DIFERENCIAIS ======================= -->
+<section class="section section--purple" id="diferenciais">
+  <div class="section__inner">
+    <p class="eyebrow eyebrow--on-dark">Por que escolher a Rayane</p>
+    <h2 class="section__title section__title--on-dark">Diferenciais</h2>
+
+    <div class="grid grid--2">
+      {% for item in diferenciais %}
+      <div class="differential">
+        <div class="differential__icon">{% include "icons/_aperture.html" %}</div>
+        <div>
+          <h3 class="differential__title">{{ item.titulo }}</h3>
+          <p class="differential__text">{{ item.texto }}</p>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- ======================= COMO FUNCIONA ======================= -->
+<section class="section section--cream" id="processo">
+  <div class="section__inner">
+    <p class="eyebrow">Do primeiro contato à entrega</p>
+    <h2 class="section__title">Como funciona</h2>
+
+    <ol class="timeline">
+      {% for passo in processo %}
+      <li class="timeline__item">
+        <span class="timeline__number">{{ passo.numero }}</span>
+        <div class="timeline__content">
+          <h3 class="timeline__title">{{ passo.titulo }}</h3>
+          <p class="timeline__text">{{ passo.texto }}</p>
+        </div>
+      </li>
+      {% endfor %}
+    </ol>
+  </div>
+</section>
+
+<!-- ======================== DEPOIMENTOS ======================== -->
+<section class="section section--green-soft" id="depoimentos">
+  <div class="section__inner">
+    <p class="eyebrow">Quem já viveu a experiência</p>
+    <h2 class="section__title">Depoimentos</h2>
+
+    <div class="grid grid--3">
+      {% for dep in depoimentos %}
+      <blockquote class="testimonial">
+        <span class="testimonial__mark" aria-hidden="true">&ldquo;</span>
+        <p class="testimonial__text">{{ dep.texto }}</p>
+        <footer class="testimonial__footer">
+          <span class="testimonial__author">{{ dep.autor }}</span>
+          <span class="testimonial__context">{{ dep.contexto }}</span>
+        </footer>
+      </blockquote>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- ========================= PACOTES ========================= -->
+<section class="section section--cream" id="pacotes">
+  <div class="section__inner">
+    <p class="eyebrow">Investimento</p>
+    <h2 class="section__title">Pacotes</h2>
+    <p class="section__lead">Cada pacote pode ser ajustado à sua história. Se nada abaixo parecer perfeito, vamos montar algo sob medida.</p>
+
+    <div class="grid grid--3 grid--pricing">
+      {% for pacote in pacotes %}
+      <article class="pricing-card {% if pacote.destaque %}pricing-card--featured{% endif %}">
+        {% if pacote.destaque %}<span class="pricing-card__badge">Mais procurado</span>{% endif %}
+        <h3 class="pricing-card__name">{{ pacote.nome }}</h3>
+        <p class="pricing-card__desc">{{ pacote.descricao }}</p>
+        <ul class="pricing-card__list">
+          {% for i in pacote.itens %}
+          <li>{{ i }}</li>
+          {% endfor %}
+        </ul>
+        <p class="pricing-card__price">{{ pacote.preco }}</p>
+        <a href="#contato" class="btn {% if pacote.destaque %}btn--gold{% else %}btn--outline{% endif %} btn--block">Escolher pacote</a>
+      </article>
+      {% endfor %}
+    </div>
+
+    <div class="pricing-cta">
+      <p>Todo evento e toda história são únicos.</p>
+      <a href="#contato" class="btn btn--purple">Solicitar orçamento personalizado</a>
+    </div>
+  </div>
+</section>
+
+<!-- =========================== FAQ =========================== -->
+<section class="section section--cream" id="faq">
+  <div class="section__inner section__inner--narrow">
+    <p class="eyebrow">Dúvidas frequentes</p>
+    <h2 class="section__title">Perguntas frequentes (Todas as perguntas foram tiradas do chat gpt)</h2>
+
+    <div class="accordion" id="accordion">
+      {% for item in faq %}
+      <div class="accordion__item">
+        <button class="accordion__trigger" aria-expanded="false">
+          <span>{{ item.pergunta }}</span>
+          <span class="accordion__icon" aria-hidden="true"></span>
+        </button>
+        <div class="accordion__panel">
+          <p>{{ item.resposta }}</p>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+
+{% endblock %}

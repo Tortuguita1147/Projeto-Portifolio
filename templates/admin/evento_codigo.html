@@ -1,0 +1,74 @@
+{% extends "admin/_base.html" %}
+{% block admin_title %}Código gerado{% endblock %}
+
+{% block admin_content %}
+<div class="admin__codigo-wrap">
+  <div class="admin-card admin-card--codigo">
+    <p class="eyebrow">Código de acesso</p>
+    <h1 class="admin-card__title">Guarde este código — ele só aparece agora</h1>
+    <p class="admin-card__desc">
+      Evento <strong>{{ evento.nome_cliente }}</strong> ({{ evento.categoria }}).
+      Este código será exibido <strong>apenas uma vez</strong>: depois desta
+      tela ele não pode mais ser recuperado em texto puro, nem por você.
+      Envie-o ao cliente junto com o link abaixo.
+    </p>
+
+    <div class="admin-codigo" data-codigo>{{ codigo }}</div>
+
+    <div class="admin-actions admin-actions--center">
+      <button type="button" class="btn btn--gold" data-copiar-codigo>Copiar código</button>
+      <button type="button" class="btn btn--outline" data-copiar-link>Copiar link completo</button>
+    </div>
+
+    <p class="admin-codigo__dica">
+      Link: <code>{{ request.host_url.rstrip('/') }}{{ url_for('cliente.galeria', codigo=codigo) }}</code><br>
+      O código diferencia maiúsculas de minúsculas. Se você perder este código,
+      gere um novo (o antigo deixa de funcionar).
+    </p>
+
+    <a href="{{ url_for('admin.evento_detalhe', evento_id=evento.id) }}" class="btn btn--outline btn--block">
+      Ir para o evento (enviar fotos)
+    </a>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  var codigo = document.querySelector("[data-codigo]");
+  var btnCodigo = document.querySelector("[data-copiar-codigo]");
+  var btnLink = document.querySelector("[data-copiar-link]");
+  var link = {{ ("%s%s" % (request.host_url.rstrip('/'), url_for('cliente.galeria', codigo=codigo))) | tojson }};
+
+  function copiar(texto, btn) {
+    var ok = false;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(texto).then(function () {
+        btn.textContent = "Copiado! ✓";
+        setTimeout(function () { btn.textContent = btn.dataset.original; }, 2000);
+      });
+    } else {
+      var ta = document.createElement("textarea");
+      ta.value = texto;
+      document.body.appendChild(ta);
+      ta.select();
+      try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
+      document.body.removeChild(ta);
+      if (ok) {
+        btn.textContent = "Copiado! ✓";
+        setTimeout(function () { btn.textContent = btn.dataset.original; }, 2000);
+      }
+    }
+  }
+
+  if (btnCodigo) {
+    btnCodigo.dataset.original = btnCodigo.textContent;
+    btnCodigo.addEventListener("click", function () { copiar(codigo.textContent.trim(), btnCodigo); });
+  }
+  if (btnLink) {
+    btnLink.dataset.original = btnLink.textContent;
+    btnLink.addEventListener("click", function () { copiar(link, btnLink); });
+  }
+})();
+</script>
+{% endblock %}
